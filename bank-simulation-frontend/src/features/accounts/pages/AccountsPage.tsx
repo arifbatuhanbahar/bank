@@ -58,12 +58,12 @@ const AccountsPage = () => {
   };
 
   return (
-    <Box>
+    <Box sx={{ pt: 1, pb: 2 }}>
       <Typography variant="h5" fontWeight={700} gutterBottom>
         Hesaplarım
       </Typography>
 
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      <Grid container spacing={-1} sx={{ mb: 3 }}>
         {[
           { label: 'Toplam Bakiye (TRY)', value: summary.totalBalanceTRY, currency: 'TRY' },
           { label: 'Toplam Bakiye (USD)', value: summary.totalBalanceUSD, currency: 'USD' },
@@ -71,13 +71,34 @@ const AccountsPage = () => {
           { label: 'Aktif Hesap', value: summary.activeAccounts },
         ].map(item => (
           <Grid xs={12} sm={6} md={3} key={item.label}>
-            <Paper sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
-              <AccountBalanceWalletIcon color="primary" />
+            <Paper
+              sx={{
+                p: 2.5,
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+                borderRadius: 2,
+              }}
+              elevation={2}
+            >
+              <Box
+                sx={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: '12px',
+                  backgroundColor: 'primary.50',
+                  display: 'grid',
+                  placeItems: 'center',
+                }}
+              >
+                <AccountBalanceWalletIcon color="primary" />
+              </Box>
               <Box>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" color="text.secondary" noWrap>
                   {item.label}
                 </Typography>
-                <Typography variant="h6">
+                <Typography variant="h6" fontWeight={700}>
                   {'currency' in item ? formatCurrency(item.value, item.currency) : item.value}
                 </Typography>
               </Box>
@@ -86,26 +107,26 @@ const AccountsPage = () => {
         ))}
       </Grid>
 
-      <Paper>
-        <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Paper sx={{ p: 2.5, borderRadius: 2 }} elevation={2}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <AccountBalanceWalletIcon color="primary" />
-          <Typography variant="h6">Hesap Listesi</Typography>
+          <Typography variant="h6" fontWeight={700}>Hesap Listesi</Typography>
         </Box>
-        <Divider />
+        <Divider sx={{ my: 2 }} />
         {loading ? (
-          <Box sx={{ p: 2 }}>
+          <Box sx={{ p: 1 }}>
             {[...Array(3)].map((_, idx) => (
-              <Skeleton key={idx} variant="rectangular" height={64} sx={{ mb: 1 }} />
+              <Skeleton key={idx} variant="rectangular" height={72} sx={{ mb: 1.5 }} />
             ))}
           </Box>
         ) : error ? (
-          <Box sx={{ p: 2 }}>
+          <Box sx={{ p: 1 }}>
             <Typography color="error">{error}</Typography>
           </Box>
         ) : (
           <List>
             {accounts.map(account => (
-              <ListItem key={account.accountId} divider>
+              <ListItem key={account.accountId} divider sx={{ py: 1 }}>
                 <ListItemText
                   primary={
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -124,11 +145,11 @@ const AccountsPage = () => {
                     </Box>
                   }
                 />
-                <ListItemSecondaryAction>
+                <ListItemSecondaryAction sx={{ textAlign: 'right' }}>
                   <Typography variant="subtitle1" fontWeight={700}>
                     {formatCurrency(account.balance, account.currency)}
                   </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5, justifyContent: 'flex-end' }}>
                     {account.status === 'Active' ? (
                       <CheckCircleIcon color="success" fontSize="small" />
                     ) : (

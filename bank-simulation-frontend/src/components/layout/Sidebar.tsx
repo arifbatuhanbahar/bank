@@ -73,6 +73,7 @@ const Sidebar = ({ open, onClose, isAdmin = false }: SidebarProps) => {
       children: [
         { title: 'Kart Listesi', path: '/cards', icon: <CreditCardIcon /> },
         { title: 'Kart Başvurusu', path: '/cards/apply', icon: <AddCardIcon /> },
+        { title: 'Başvurularım', path: '/cards/applications', icon: <AddCardIcon /> },
       ],
     },
     {

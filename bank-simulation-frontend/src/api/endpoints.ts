@@ -41,6 +41,7 @@ export const API_ENDPOINTS = {
     BASE: '/Application',
     APPLY: '/Application/apply',
     APPROVE: (applicationId: number) => `/Application/approve/${applicationId}`,
+    GET_BY_USER: (userId: number) => `/Application/user/${userId}`,
   },
 
   // ==================== COMPLIANCE ====================

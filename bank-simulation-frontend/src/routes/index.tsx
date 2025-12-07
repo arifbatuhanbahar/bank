@@ -15,6 +15,7 @@ import TransactionsPage from '../features/transactions/pages/TransactionsPage';
 import TransferPage from '../features/transactions/pages/TransferPage';
 import CardsPage from '../features/cards/pages/CardsPage';
 import CardApplicationPage from '../features/cards/pages/CardApplicationPage';
+import UserApplicationsPage from '../features/cards/pages/UserApplicationsPage';
 
 // Placeholder component for pages not yet created
 const ComingSoon = ({ title }: { title: string }) => (
@@ -85,6 +86,10 @@ const router = createBrowserRouter([
       {
         path: 'cards/apply',
         element: <CardApplicationPage />,
+      },
+      {
+        path: 'cards/applications',
+        element: <UserApplicationsPage />,
       },
       {
         path: 'cards/:id',

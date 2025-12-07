@@ -10,3 +10,4 @@ export { default as accountService } from './services/accountService';
 export { default as transactionService } from './services/transactionService';
 export { default as cardService } from './services/cardService';
 export { default as complianceService } from './services/complianceService';
+export { default as applicationService } from './services/applicationService';

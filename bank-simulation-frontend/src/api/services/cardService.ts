@@ -1,11 +1,13 @@
-import apiClient from '../client';
+﻿import apiClient from '../client';
 import { API_ENDPOINTS } from '../endpoints';
 import { 
   CreditCard, 
   CreateCardRequest, 
   CardTransactionRequest,
-  CardApplicationRequest 
+  CardApplicationRequest, 
+  CardApplication 
 } from '../../types';
+import { saveLocalApplication } from './applicationService';
 
 export const cardService = {
   /**
@@ -48,6 +50,20 @@ export const cardService = {
       API_ENDPOINTS.APPLICATION.APPLY,
       applicationData
     );
+
+    // Backend kayıt etse de, UI tarafında kaybetmemek için local cache'e ekle
+    const application: CardApplication = {
+      applicationId: response.data?.applicationId || Date.now(),
+      userId: applicationData.userId,
+      cardTypeRequested: applicationData.cardTypeRequested,
+      monthlyIncome: applicationData.monthlyIncome,
+      employmentStatus: applicationData.employmentStatus,
+      employerName: applicationData.employerName,
+      applicationDate: new Date().toISOString(),
+      status: 'Pending',
+    };
+    saveLocalApplication(application);
+
     return response.data;
   },
 
@@ -62,7 +78,7 @@ export const cardService = {
   },
 
   /**
-   * Kart numarasını maskeler
+   * Kart numarasının maskeler
    */
   maskCardNumber: (lastFour: string): string => {
     return `**** **** **** ${lastFour}`;

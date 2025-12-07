@@ -59,15 +59,16 @@ const Header = ({ onMenuClick, user, onLogout }: HeaderProps) => {
   const fullName = user ? `${user.firstName} ${user.lastName}` : 'Kullanıcı';
 
   return (
-    <AppBar
-      position="fixed"
-      sx={{
-        zIndex: (theme) => theme.zIndex.drawer + 1,
-        backgroundColor: 'white',
-        color: 'text.primary',
-      }}
-    >
-      <Toolbar>
+    <AppBar position="fixed" color="default" elevation={0}>
+      <Toolbar
+        sx={{
+          minHeight: 72,
+          px: { xs: 2, md: 3 },
+          borderBottom: '1px solid',
+          borderColor: 'divider',
+          backgroundColor: 'white',
+        }}
+      >
         <IconButton
           edge="start"
           color="inherit"
