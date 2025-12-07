@@ -3,12 +3,14 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { Box, Toolbar } from '@mui/material';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import { isAdminUser } from '../../utils/auth';
 
 interface MainLayoutProps {
   user?: {
     firstName: string;
     lastName: string;
     email: string;
+    [key: string]: any;
   } | null;
 }
 
@@ -30,6 +32,8 @@ const MainLayout = ({ user }: MainLayoutProps) => {
     navigate('/login');
   };
 
+  const isAdmin = isAdminUser(user as any);
+
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       <Header
@@ -41,7 +45,7 @@ const MainLayout = ({ user }: MainLayoutProps) => {
       <Sidebar
         open={sidebarOpen}
         onClose={handleSidebarClose}
-        isAdmin={false} // TODO: User role'den al
+        isAdmin={isAdmin}
       />
 
       <Box

@@ -8,7 +8,10 @@ export const API_ENDPOINTS = {
     GET_ALL: '/Users',
     GET_BY_ID: (id: number) => `/Users/${id}`,
     CREATE: '/Users',
+    UPDATE: (id: number) => `/Users/${id}`,
     DELETE: (id: number) => `/Users/${id}`,
+    CHANGE_PASSWORD: (id: number) => `/Users/${id}/change-password`,
+    PASSWORD_HISTORY: (id: number) => `/Users/${id}/password-history`,
   },
 
   // ==================== ACCOUNTS ====================

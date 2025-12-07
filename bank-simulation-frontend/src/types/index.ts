@@ -8,6 +8,7 @@ export * from './transaction.types';
 export * from './card.types';
 export * from './kyc.types';
 export * from './kvkk.types';
+export * from './admin.types';
 
 // Common Types
 export interface ApiResponse<T> {

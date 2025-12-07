@@ -35,6 +35,14 @@ export const userService = {
   },
 
   /**
+   * Kullanıcı günceller
+   */
+  updateUser: async (id: number, payload: Partial<User>): Promise<User> => {
+    const response = await apiClient.put<User>(API_ENDPOINTS.USERS.UPDATE(id), payload);
+    return response.data;
+  },
+
+  /**
    * Kullanıcı girişi yapar
    * NOT: Backend'de auth endpoint yoksa mock olarak kullanılır
    */
@@ -52,6 +60,21 @@ export const userService = {
     const token = btoa(JSON.stringify({ userId: user.userId, email: user.email, exp: Date.now() + 3600000 }));
     
     return { user, token };
+  },
+
+  /**
+   * Şifre değiştirir ve tarihçeye yazar
+   */
+  changePassword: async (userId: number, newPassword: string): Promise<void> => {
+    await apiClient.post(API_ENDPOINTS.USERS.CHANGE_PASSWORD(userId), { newPassword });
+  },
+
+  /**
+   * Şifre tarihçesini getirir
+   */
+  getPasswordHistory: async (userId: number) => {
+    const res = await apiClient.get(API_ENDPOINTS.USERS.PASSWORD_HISTORY(userId));
+    return res.data;
   },
 };
 

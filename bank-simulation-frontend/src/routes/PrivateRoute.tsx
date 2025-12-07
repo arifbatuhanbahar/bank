@@ -1,4 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom';
+import { isAdminUser } from '../utils/auth';
 
 interface PrivateRouteProps {
   children: React.ReactNode;
@@ -7,10 +8,16 @@ interface PrivateRouteProps {
 const PrivateRoute = ({ children }: PrivateRouteProps) => {
   const location = useLocation();
   const token = localStorage.getItem('authToken');
+  const userJson = localStorage.getItem('user');
+  const user = userJson ? JSON.parse(userJson) : null;
 
   if (!token) {
-    // Token yoksa login sayfasına yönlendir
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  const goingAdmin = location.pathname.startsWith('/admin');
+  if (goingAdmin && !isAdminUser(user)) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <>{children}</>;

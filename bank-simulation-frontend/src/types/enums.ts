@@ -201,3 +201,28 @@ export const Severity = {
   Critical: 'Critical',
 } as const;
 export type Severity = typeof Severity[keyof typeof Severity];
+
+// Fraud
+export const RuleType = {
+  Velocity: 'Velocity',
+  AmountAnomaly: 'AmountAnomaly',
+  Geographic: 'Geographic',
+  TimePattern: 'TimePattern',
+} as const;
+export type RuleType = typeof RuleType[keyof typeof RuleType];
+
+// System
+export const SettingType = {
+  String: 'String',
+  Number: 'Number',
+  Boolean: 'Boolean',
+  Json: 'Json',
+} as const;
+export type SettingType = typeof SettingType[keyof typeof SettingType];
+
+export const TemplateType = {
+  Email: 'Email',
+  Sms: 'Sms',
+  Push: 'Push',
+} as const;
+export type TemplateType = typeof TemplateType[keyof typeof TemplateType];

@@ -84,6 +84,7 @@ const Sidebar = ({ open, onClose, isAdmin = false }: SidebarProps) => {
         { title: 'KVKK', path: '/compliance/kvkk', icon: <SecurityIcon /> },
       ],
     },
+    { title: 'Güvenlik', path: '/profile/security', icon: <SecurityIcon /> },
   ];
 
   const adminMenuItems: MenuItem[] = [
@@ -94,6 +95,7 @@ const Sidebar = ({ open, onClose, isAdmin = false }: SidebarProps) => {
         { title: 'Kullanıcı Yönetimi', path: '/admin/users', icon: <PeopleIcon /> },
         { title: 'Fraud Alarmları', path: '/admin/fraud', icon: <WarningIcon /> },
         { title: 'Audit Logs', path: '/admin/audit', icon: <HistoryIcon /> },
+        { title: 'Sistem Ayarları', path: '/admin/system', icon: <SecurityIcon /> },
       ],
     },
   ];

@@ -16,6 +16,14 @@ import TransferPage from '../features/transactions/pages/TransferPage';
 import CardsPage from '../features/cards/pages/CardsPage';
 import CardApplicationPage from '../features/cards/pages/CardApplicationPage';
 import UserApplicationsPage from '../features/cards/pages/UserApplicationsPage';
+import CardDetailPage from '../features/cards/pages/CardDetailPage';
+import AdminFraudPage from '../features/admin/pages/AdminFraudPage';
+import AdminAuditPage from '../features/admin/pages/AdminAuditPage';
+import AdminSystemPage from '../features/admin/pages/AdminSystemPage';
+import AccountDetailPage from '../features/accounts/pages/AccountDetailPage';
+import RegisterPage from '../features/auth/pages/RegisterPage';
+import AdminUsersPage from '../features/admin/pages/AdminUsersPage';
+import ChangePasswordPage from '../features/auth/pages/ChangePasswordPage';
 
 // Placeholder component for pages not yet created
 const ComingSoon = ({ title }: { title: string }) => (
@@ -39,7 +47,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/register',
-    element: <ComingSoon title="Kayıt Sayfası" />,
+    element: <RegisterPage />,
   },
 
   // Protected Routes
@@ -69,7 +77,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'accounts/:id',
-        element: <ComingSoon title="Hesap Detayı" />,
+        element: <AccountDetailPage />,
       },
       {
         path: 'transactions',
@@ -93,7 +101,11 @@ const router = createBrowserRouter([
       },
       {
         path: 'cards/:id',
-        element: <ComingSoon title="Kart Detayı" />,
+        element: <CardDetailPage />,
+      },
+      {
+        path: 'profile/security',
+        element: <ChangePasswordPage />,
       },
       {
         path: 'compliance/kyc',
@@ -106,15 +118,19 @@ const router = createBrowserRouter([
       // Admin Routes
       {
         path: 'admin/users',
-        element: <ComingSoon title="Kullanıcı Yönetimi" />,
+        element: <AdminUsersPage />,
       },
       {
         path: 'admin/fraud',
-        element: <ComingSoon title="Fraud Alarmları" />,
+        element: <AdminFraudPage />,
       },
       {
         path: 'admin/audit',
-        element: <ComingSoon title="Audit Logs" />,
+        element: <AdminAuditPage />,
+      },
+      {
+        path: 'admin/system',
+        element: <AdminSystemPage />,
       },
     ],
   },

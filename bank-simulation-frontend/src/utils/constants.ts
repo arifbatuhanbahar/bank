@@ -236,3 +236,9 @@ export const SUCCESS_MESSAGES = {
   PROFILE_UPDATED: "Profiliniz güncellendi.",
   PASSWORD_CHANGED: "Şifreniz başarıyla değiştirildi.",
 };
+
+// ==================== ADMIN ====================
+export const ADMIN_EMAILS = [
+  "admin@bank.com",
+  "root@bank.com",
+] as const;

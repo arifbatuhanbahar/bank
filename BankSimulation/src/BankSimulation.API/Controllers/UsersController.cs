@@ -2,6 +2,8 @@ using BankSimulation.Domain.Entities.UserManagement;
 using BankSimulation.Infrastructure.Data;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace BankSimulation.API.Controllers;
 
@@ -101,6 +103,41 @@ public class UsersController : ControllerBase
         return CreatedAtAction(nameof(GetUser), new { id = newId }, user);
     }
 
+    // PUT: api/users/5
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest request)
+    {
+        using var connection = _context.CreateConnection();
+
+        var sql = @"
+            UPDATE users
+            SET first_name = @FirstName,
+                last_name = @LastName,
+                status = @Status,
+                kyc_status = @KycStatus,
+                risk_level = @RiskLevel,
+                updated_at = GETDATE()
+            WHERE user_id = @Id";
+
+        var rows = await connection.ExecuteAsync(sql, new
+        {
+            Id = id,
+            request.FirstName,
+            request.LastName,
+            Status = request.Status ?? "Active",
+            KycStatus = request.KycStatus ?? "Pending",
+            RiskLevel = request.RiskLevel ?? "Low"
+        });
+
+        if (rows == 0) return NotFound();
+
+        var updated = await connection.QuerySingleAsync<User>(
+            "SELECT * FROM users WHERE user_id = @Id",
+            new { Id = id });
+
+        return Ok(updated);
+    }
+
     // DELETE: api/users/5
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(int id)
@@ -119,4 +156,85 @@ public class UsersController : ControllerBase
 
         return NoContent();
     }
+
+    // POST: api/users/{id}/change-password
+    [HttpPost("{id}/change-password")]
+    public async Task<IActionResult> ChangePassword(int id, [FromBody] ChangePasswordRequest request)
+    {
+        using var connection = _context.CreateConnection();
+        connection.Open();
+        using var transaction = connection.BeginTransaction();
+
+        try
+        {
+            var exists = await connection.ExecuteScalarAsync<int>(
+                "SELECT COUNT(1) FROM users WHERE user_id = @Id",
+                new { Id = id }, transaction);
+
+            if (exists == 0)
+            {
+                transaction.Rollback();
+                return NotFound();
+            }
+
+            var hashed = ComputeHash(request.NewPassword);
+            var salt = Guid.NewGuid().ToString("N");
+
+            var updateSql = @"
+                UPDATE users 
+                SET password_hash = @Hash, password_salt = @Salt, password_changed_at = GETDATE()
+                WHERE user_id = @Id";
+
+            await connection.ExecuteAsync(updateSql, new { Hash = hashed, Salt = salt, Id = id }, transaction);
+
+            var historySql = @"
+                INSERT INTO password_history (user_id, password_hash, changed_at, changed_by)
+                VALUES (@UserId, @Hash, GETDATE(), @UserId)";
+
+            await connection.ExecuteAsync(historySql, new { UserId = id, Hash = hashed }, transaction);
+
+            transaction.Commit();
+            return Ok(new { Message = "Şifre güncellendi." });
+        }
+        catch
+        {
+            transaction.Rollback();
+            return StatusCode(500, "Şifre güncellenemedi.");
+        }
+    }
+
+    // GET: api/users/{id}/password-history
+    [HttpGet("{id}/password-history")]
+    public async Task<ActionResult<IEnumerable<PasswordHistory>>> GetPasswordHistory(int id)
+    {
+        using var connection = _context.CreateConnection();
+        var sql = @"
+            SELECT TOP 10 * FROM password_history
+            WHERE user_id = @UserId
+            ORDER BY changed_at DESC";
+
+        var history = await connection.QueryAsync<PasswordHistory>(sql, new { UserId = id });
+        return Ok(history);
+    }
+
+    private static string ComputeHash(string input)
+    {
+        using var sha = SHA256.Create();
+        var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(input));
+        return Convert.ToBase64String(bytes);
+    }
+}
+
+public class ChangePasswordRequest
+{
+    public string NewPassword { get; set; } = null!;
+}
+
+public class UpdateUserRequest
+{
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? Status { get; set; }
+    public string? KycStatus { get; set; }
+    public string? RiskLevel { get; set; }
 }

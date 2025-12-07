@@ -61,6 +61,18 @@ export interface LoginAttempt {
   userAgent?: string;
 }
 
+export interface PasswordHistory {
+  historyId: number;
+  userId: number;
+  passwordHash: string;
+  changedAt: string;
+  changedBy?: number;
+}
+
+export interface ChangePasswordRequest {
+  newPassword: string;
+}
+
 // Request/Response DTOs
 export interface CreateUserRequest {
   tcKimlikNo: string;
