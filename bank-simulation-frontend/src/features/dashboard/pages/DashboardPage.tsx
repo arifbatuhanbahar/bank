@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import {
   Box,
   Grid,
@@ -47,12 +47,30 @@ const DashboardPage = () => {
           const userAccounts = await accountService.getUserAccounts(user.userId);
           setAccounts(userAccounts);
 
-          // İlk hesabın işlemlerini getir (varsa)
           if (userAccounts.length > 0) {
-            const transactions = await transactionService.getAccountTransactions(
-              userAccounts[0].accountId
+            const accountIds = userAccounts.map(acc => acc.accountId);
+            const txLists = await Promise.all(
+              accountIds.map(id =>
+                transactionService
+                  .getAccountTransactions(id)
+                  .catch(() => [])
+              )
             );
-            setRecentTransactions(transactions.slice(0, 5));
+            // transactionId ile tekilleştir
+            const dedupMap = new Map<number, typeof txLists[number][number]>();
+            txLists.flat().forEach(tx => {
+              if (!dedupMap.has(tx.transactionId)) {
+                dedupMap.set(tx.transactionId, tx);
+              }
+            });
+            const sorted = Array.from(dedupMap.values()).sort(
+              (a, b) =>
+                new Date(b.transactionDate).getTime() -
+                new Date(a.transactionDate).getTime()
+            );
+            const latest = sorted.slice(0, 5);
+            setRecentTransactions(latest);
+            localStorage.setItem('recentTransactions', JSON.stringify(latest));
           }
         }
       } catch (error) {

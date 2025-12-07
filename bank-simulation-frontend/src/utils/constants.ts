@@ -194,7 +194,6 @@ export const ROUTES = {
   KVKK: "/compliance/kvkk",
   SETTINGS: "/settings",
   PROFILE: "/profile",
-  // Admin routes
   ADMIN: "/admin",
   ADMIN_USERS: "/admin/users",
   ADMIN_FRAUD: "/admin/fraud",

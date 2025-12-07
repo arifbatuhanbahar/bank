@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -18,7 +18,10 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import { useNavigate } from 'react-router-dom';
-import { getInitials } from '../../utils/formatters';
+import { getInitials, formatCurrency, formatDateTime } from '../../utils/formatters';
+import { accountService, transactionService } from '../../api';
+import { Transaction } from '../../types';
+import { TRANSACTION_TYPE_LABELS } from '../../utils/constants';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -34,6 +37,7 @@ const Header = ({ onMenuClick, user, onLogout }: HeaderProps) => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null);
+  const [notifications, setNotifications] = useState<Transaction[]>([]);
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -57,6 +61,45 @@ const Header = ({ onMenuClick, user, onLogout }: HeaderProps) => {
   };
 
   const fullName = user ? `${user.firstName} ${user.lastName}` : 'Kullanıcı';
+  const userJson = localStorage.getItem('user');
+  const storedUser = userJson ? JSON.parse(userJson) : null;
+
+  useEffect(() => {
+    const loadNotifications = async () => {
+      if (!storedUser?.userId) {
+        setNotifications([]);
+        return;
+      }
+      try {
+        // Tüm hesaplardan işlemleri topla ve tarihe göre sırala
+        const userAccounts = await accountService.getUserAccounts(storedUser.userId);
+        const accountIds = userAccounts.map(acc => acc.accountId);
+        if (accountIds.length === 0) {
+          setNotifications([]);
+          return;
+        }
+        const txLists = await Promise.all(
+          accountIds.map(id => transactionService.getAccountTransactions(id).catch(() => []))
+        );
+        const dedup = new Map<number, Transaction>();
+        txLists.flat().forEach(tx => {
+          if (!dedup.has(tx.transactionId)) {
+            dedup.set(tx.transactionId, tx);
+          }
+        });
+        const sorted = Array.from(dedup.values()).sort(
+          (a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime()
+        );
+        setNotifications(sorted.slice(0, 5));
+      } catch (err) {
+        console.error('Bildirimler alınamadı', err);
+        setNotifications([]);
+      }
+    };
+    loadNotifications();
+  }, [storedUser?.userId]);
+
+  const unreadCount = notifications.length;
 
   return (
     <AppBar position="fixed" color="default" elevation={0}>
@@ -95,7 +138,7 @@ const Header = ({ onMenuClick, user, onLogout }: HeaderProps) => {
             onClick={handleNotificationOpen}
             sx={{ mr: 1 }}
           >
-            <Badge badgeContent={3} color="error">
+            <Badge badgeContent={unreadCount} color="error">
               <NotificationsIcon />
             </Badge>
           </IconButton>
@@ -115,32 +158,26 @@ const Header = ({ onMenuClick, user, onLogout }: HeaderProps) => {
             </Typography>
           </Box>
           <Divider />
-          <MenuItem onClick={handleNotificationClose}>
-            <Box>
-              <Typography variant="body2" fontWeight={500}>
-                Transfer Başarılı
+          {notifications.length === 0 ? (
+            <MenuItem disabled>
+              <Typography variant="body2" color="text.secondary">
+                Bildirim yok
               </Typography>
-              <Typography variant="caption" color="text.secondary">
-                1.000 TL transferiniz gerçekleşti
-              </Typography>
-            </Box>
-          </MenuItem>
-          <MenuItem onClick={handleNotificationClose}>
-            <Box>
-              <Typography variant="body2" fontWeight={500}>
-                Kart Harcaması
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Netflix - 64,99 TL
-              </Typography>
-            </Box>
-          </MenuItem>
-          <Divider />
-          <MenuItem onClick={handleNotificationClose} sx={{ justifyContent: 'center' }}>
-            <Typography variant="body2" color="primary">
-              Tümünü Gör
-            </Typography>
-          </MenuItem>
+            </MenuItem>
+          ) : (
+            notifications.map((n) => (
+              <MenuItem key={n.transactionId} onClick={handleNotificationClose}>
+                <Box>
+                  <Typography variant="body2" fontWeight={500}>
+                    {TRANSACTION_TYPE_LABELS[n.transactionType] || n.transactionType}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {formatCurrency(n.amount, n.currency)} • {n.description || 'İşlem'} • {formatDateTime(n.transactionDate)}
+                  </Typography>
+                </Box>
+              </MenuItem>
+            ))
+          )}
         </Menu>
 
         {/* Profil Menüsü */}
