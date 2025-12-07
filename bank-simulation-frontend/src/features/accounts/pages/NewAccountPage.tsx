@@ -3,15 +3,14 @@ import {
   Box,
   Paper,
   Typography,
-  TextField,
   Button,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
   Alert,
-  Grid,
 } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import { useForm, Controller } from 'react-hook-form';
 import { accountService } from '../../../api';
 import { AccountType, Currency } from '../../../types';
@@ -19,10 +18,6 @@ import { AccountType, Currency } from '../../../types';
 type NewAccountForm = {
   accountType: AccountType;
   currency: Currency;
-  balance: number;
-  dailyTransferLimit: number;
-  dailyWithdrawalLimit: number;
-  interestRate: number;
 };
 
 const generateIban = () => {
@@ -42,10 +37,6 @@ const NewAccountPage = () => {
     defaultValues: {
       accountType: 'Checking',
       currency: 'TRY',
-      balance: 0,
-      dailyTransferLimit: 50000,
-      dailyWithdrawalLimit: 10000,
-      interestRate: 0,
     },
   });
 
@@ -63,10 +54,10 @@ const NewAccountPage = () => {
         accountNumber: generateIban(),
         accountType: data.accountType,
         currency: data.currency,
-        balance: data.balance,
-        dailyTransferLimit: data.dailyTransferLimit,
-        dailyWithdrawalLimit: data.dailyWithdrawalLimit,
-        interestRate: data.interestRate,
+        balance: 0, // ilk bakiye 0, sonradan transfer ile yüklenir
+        dailyTransferLimit: 50000,
+        dailyWithdrawalLimit: 10000,
+        interestRate: 0,
       });
       setSuccess('Hesap oluşturuldu.');
       reset();
@@ -131,37 +122,12 @@ const NewAccountPage = () => {
               </FormControl>
             </Grid>
 
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Başlangıç Bakiye"
-                type="number"
-                fullWidth
-                {...register('balance', { valueAsNumber: true })}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Faiz Oranı (%)"
-                type="number"
-                fullWidth
-                {...register('interestRate', { valueAsNumber: true })}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Günlük Transfer Limiti"
-                type="number"
-                fullWidth
-                {...register('dailyTransferLimit', { valueAsNumber: true })}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Günlük Çekim Limiti"
-                type="number"
-                fullWidth
-                {...register('dailyWithdrawalLimit', { valueAsNumber: true })}
-              />
+            <Grid item xs={12}>
+              <Typography variant="body2" color="text.secondary">
+                Başlangıç bakiyesi 0 TL olarak açılır. Limitler ve faiz oranı sistem tarafından varsayılan
+                değerlerle atanır (transfer limit 50.000, çekim limit 10.000, faiz 0%). Sonradan hesap bakiyesi
+                transfer veya yatırma işlemleriyle güncellenir.
+              </Typography>
             </Grid>
 
             <Grid item xs={12}>
