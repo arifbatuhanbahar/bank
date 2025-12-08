@@ -16,6 +16,9 @@ import {
   TextField,
   Skeleton,
   Typography,
+  InputAdornment,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import PeopleIcon from '@mui/icons-material/People';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
@@ -30,6 +33,9 @@ const AdminUsersPage = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [editing, setEditing] = useState<User | null>(null);
   const [editPayload, setEditPayload] = useState<Partial<User>>({});
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [kycFilter, setKycFilter] = useState<string>('');
 
   useEffect(() => {
     const load = async () => {
@@ -62,6 +68,14 @@ const AdminUsersPage = () => {
     setEditPayload(prev => ({ ...prev, [key]: value }));
   };
 
+  const filteredUsers = users.filter(u => {
+    const text = `${u.firstName} ${u.lastName} ${u.email}`.toLowerCase();
+    const matchesText = text.includes(search.toLowerCase());
+    const matchesStatus = statusFilter ? u.status === statusFilter : true;
+    const matchesKyc = kycFilter ? u.kycStatus === kycFilter : true;
+    return matchesText && matchesStatus && matchesKyc;
+  });
+
   const saveEdit = async () => {
     if (!editing) return;
     try {
@@ -82,6 +96,39 @@ const AdminUsersPage = () => {
         Kullanıcı Yönetimi
       </Typography>
 
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ mb: 2 }}>
+        <TextField
+          placeholder="Ara (ad, soyad, email)"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          InputProps={{ startAdornment: <InputAdornment position="start">@</InputAdornment> }}
+          fullWidth
+        />
+        <Select
+          displayEmpty
+          value={statusFilter}
+          onChange={e => setStatusFilter(e.target.value)}
+          size="small"
+        >
+          <MenuItem value="">Durum (hepsi)</MenuItem>
+          <MenuItem value="Active">Active</MenuItem>
+          <MenuItem value="Suspended">Suspended</MenuItem>
+          <MenuItem value="Locked">Locked</MenuItem>
+          <MenuItem value="Closed">Closed</MenuItem>
+        </Select>
+        <Select
+          displayEmpty
+          value={kycFilter}
+          onChange={e => setKycFilter(e.target.value)}
+          size="small"
+        >
+          <MenuItem value="">KYC (hepsi)</MenuItem>
+          <MenuItem value="Pending">Pending</MenuItem>
+          <MenuItem value="Verified">Verified</MenuItem>
+          <MenuItem value="Rejected">Rejected</MenuItem>
+        </Select>
+      </Stack>
+
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
@@ -93,11 +140,11 @@ const AdminUsersPage = () => {
         <Divider sx={{ mb: 2 }} />
         {loading ? (
           <Skeleton variant="rectangular" height={220} />
-        ) : users.length === 0 ? (
+        ) : filteredUsers.length === 0 ? (
           <Typography color="text.secondary">Kayıt bulunamadı.</Typography>
         ) : (
           <Grid container spacing={2}>
-            {users.map(user => (
+            {filteredUsers.map(user => (
               <Grid item xs={12} md={6} key={user.userId}>
                 <Box sx={{ p: 2, borderRadius: 2, bgcolor: 'action.hover' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

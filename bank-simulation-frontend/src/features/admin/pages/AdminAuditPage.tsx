@@ -32,18 +32,28 @@ const AdminAuditPage = () => {
   });
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [severityFilter, setSeverityFilter] = useState<string>('');
+  const [textFilter, setTextFilter] = useState<string>('');
 
   const loadEvents = async () => {
     setLoading(true);
     try {
       const data = await auditService.getSecurityEvents();
       setEvents(data);
-    } catch (err) {
+    } catch {
       setError('Güvenlik olayları alınamadı.');
     } finally {
       setLoading(false);
     }
   };
+
+  const filteredEvents = events.filter(evt => {
+    const matchesSeverity = severityFilter ? evt.severity === severityFilter : true;
+    const matchesText = textFilter
+      ? (evt.description || '').toLowerCase().includes(textFilter.toLowerCase())
+      : true;
+    return matchesSeverity && matchesText;
+  });
 
   useEffect(() => {
     loadEvents();
@@ -58,7 +68,7 @@ const AdminAuditPage = () => {
       setMessage('Güvenlik olayı kaydedildi.');
       await loadEvents();
       setForm(prev => ({ ...prev, description: '' }));
-    } catch (err) {
+    } catch {
       setError('Kayıt sırasında hata oluştu.');
     }
   };
@@ -147,13 +157,38 @@ const AdminAuditPage = () => {
               <ListAltIcon color="primary" />
               <Typography variant="h6">Son güvenlik olayları</Typography>
             </Box>
+            <Box sx={{ display: 'flex', gap: 1, mb: 1, flexWrap: 'wrap' }}>
+              <FormControl size="small" sx={{ minWidth: 140 }}>
+                <InputLabel id="severity-filter">Önem</InputLabel>
+                <Select
+                  labelId="severity-filter"
+                  label="Önem"
+                  value={severityFilter}
+                  onChange={e => setSeverityFilter(e.target.value)}
+                >
+                  <MenuItem value="">Hepsi</MenuItem>
+                  {Object.keys(Severity).map(key => (
+                    <MenuItem key={key} value={Severity[key as keyof typeof Severity]}>
+                      {SEVERITY_LABELS[key] || key}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <TextField
+                size="small"
+                placeholder="Açıklamada ara"
+                value={textFilter}
+                onChange={e => setTextFilter(e.target.value)}
+              />
+              <Button size="small" onClick={loadEvents}>Yenile</Button>
+            </Box>
             <Divider sx={{ mb: 2 }} />
             {loading ? (
               <Typography color="text.secondary">Yükleniyor...</Typography>
-            ) : events.length === 0 ? (
+            ) : filteredEvents.length === 0 ? (
               <Typography color="text.secondary">Kayıt yok.</Typography>
             ) : (
-              events.map(evt => (
+              filteredEvents.map(evt => (
                 <Box key={evt.eventId} sx={{ mb: 2, p: 1.5, borderRadius: 2, bgcolor: 'action.hover' }}>
                   <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
                     <Chip label={evt.eventType} size="small" />

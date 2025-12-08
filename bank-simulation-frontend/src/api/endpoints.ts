@@ -2,6 +2,9 @@
 // Backend: http://localhost:5161/swagger
 
 export const API_ENDPOINTS = {
+  AUTH: {
+    LOGIN: '/Auth/login',
+  },
   // ==================== USERS ====================
   USERS: {
     BASE: '/Users',

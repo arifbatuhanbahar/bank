@@ -17,6 +17,19 @@ import { PasswordHistory } from '../../../types';
 import { formatDateTime } from '../../../utils/formatters';
 import { SUCCESS_MESSAGES } from '../../../utils/constants';
 
+const isStrongPassword = (pwd: string) => {
+  if (pwd.length < 8) return false;
+  if (!/[A-Z]/.test(pwd)) return false;
+  if (!/[a-z]/.test(pwd)) return false;
+  if (!/[0-9]/.test(pwd)) return false;
+  return true;
+};
+
+const maskHash = (hash: string) => {
+  if (!hash) return '';
+  return `${hash.slice(0, 6)}...${hash.slice(-4)}`;
+};
+
 const ChangePasswordPage = () => {
   const userJson = localStorage.getItem('user');
   const user = userJson ? JSON.parse(userJson) : null;
@@ -44,6 +57,10 @@ const ChangePasswordPage = () => {
     e.preventDefault();
     if (!user?.userId) {
       setError('Kullanıcı bulunamadı.');
+      return;
+    }
+    if (!isStrongPassword(newPassword)) {
+      setError('Şifre en az 8 karakter, büyük-küçük harf ve rakam içermelidir.');
       return;
     }
     setLoading(true);
@@ -85,7 +102,7 @@ const ChangePasswordPage = () => {
             sx={{ mb: 2 }}
             value={newPassword}
             onChange={e => setNewPassword(e.target.value)}
-            helperText="Demo amaçlıdır; backend hash/salt üretir ve tarihçeye yazar."
+            helperText="En az 8 karakter, büyük-küçük harf ve rakam zorunlu."
           />
           <Button type="submit" variant="contained" disabled={loading}>
             {loading ? 'Güncelleniyor...' : 'Kaydet'}
@@ -105,7 +122,7 @@ const ChangePasswordPage = () => {
             {history.map(item => (
               <ListItem key={item.historyId} divider>
                 <ListItemText
-                  primary={`Hash: ${item.passwordHash}`}
+                  primary={`Hash: ${maskHash(item.passwordHash)}`}
                   secondary={`Değiştiren: ${item.changedBy ?? 'kullanıcı'} · Tarih: ${formatDateTime(item.changedAt)}`}
                 />
               </ListItem>

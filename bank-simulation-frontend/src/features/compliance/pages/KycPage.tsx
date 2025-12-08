@@ -26,9 +26,10 @@ import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { complianceService } from '../../../api';
 import { DocumentType, VerificationStatus, KycDocument, KycUploadRequest } from '../../../types';
-import { DOCUMENT_TYPE_LABELS, REQUEST_STATUS_LABELS } from '../../../utils/constants';
+import { DOCUMENT_TYPE_LABELS } from '../../../utils/constants';
 import { formatDateTime } from '../../../utils/formatters';
 import { kycUploadSchema, KycUploadFormData } from '../../../utils/validators';
+import { isAdminUser } from '../../../utils/auth';
 
 const KycPage = () => {
   const [documents, setDocuments] = useState<KycDocument[]>([]);
@@ -37,6 +38,7 @@ const KycPage = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const userJson = localStorage.getItem('user');
   const user = userJson ? JSON.parse(userJson) : null;
+  const isAdmin = isAdminUser(user);
 
   const {
     control,
@@ -63,7 +65,6 @@ const KycPage = () => {
       const data = await complianceService.getKycDocuments(user.userId);
       setDocuments(data);
     } catch (err) {
-      console.error(err);
       setError('Belgeler yüklenirken hata oluştu.');
     } finally {
       setLoading(false);
@@ -92,7 +93,6 @@ const KycPage = () => {
       reset({ documentType: data.documentType, documentNumber: '' });
       await loadDocs();
     } catch (err) {
-      console.error(err);
       setError('Belge yüklenemedi.');
     }
   };
@@ -108,6 +108,17 @@ const KycPage = () => {
         return <Chip label="Reddedildi" color="error" size="small" icon={<CancelIcon />} />;
       default:
         return <Chip label={status} size="small" />;
+    }
+  };
+
+  const handleVerify = async (documentId: number, approve: boolean) => {
+    if (!isAdmin) return;
+    setError(null);
+    try {
+      await complianceService.verifyKycDocument(documentId, approve, approve ? undefined : 'Reddedildi');
+      await loadDocs();
+    } catch {
+      setError('Belge onay işlemi başarısız.');
     }
   };
 
@@ -198,7 +209,18 @@ const KycPage = () => {
               <List disablePadding>
                 {documents.map(doc => (
                   <Box key={doc.documentId}>
-                    <ListItem sx={{ px: 0 }}>
+                    <ListItem sx={{ px: 0 }} secondaryAction={
+                      isAdmin && doc.verificationStatus === 'Pending' ? (
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button size="small" color="success" onClick={() => handleVerify(doc.documentId, true)}>
+                            Onayla
+                          </Button>
+                          <Button size="small" color="error" onClick={() => handleVerify(doc.documentId, false)}>
+                            Reddet
+                          </Button>
+                        </Box>
+                      ) : null
+                    }>
                       <ListItemText
                         primary={
                           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
@@ -210,7 +232,7 @@ const KycPage = () => {
                         }
                         secondary={
                           <Typography variant="caption" color="text.secondary">
-                            No: {doc.documentNumber} • Yüklendi: {formatDateTime(doc.uploadDate)}
+                            No: {doc.documentNumber} · Yüklendi: {formatDateTime(doc.uploadDate)}
                           </Typography>
                         }
                       />

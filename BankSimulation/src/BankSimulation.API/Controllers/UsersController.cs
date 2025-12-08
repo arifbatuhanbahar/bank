@@ -217,6 +217,29 @@ public class UsersController : ControllerBase
         return Ok(history);
     }
 
+    /// <summary>
+    /// Demo amaçlı: Tüm kullanıcıların şifrelerini aynı değere sıfırlar (varsayılan demo123).
+    /// Güvenlik açısından gerçek ortamda kullanmayın.
+    /// </summary>
+    [HttpPost("reset-passwords")]
+    public async Task<IActionResult> ResetAllPasswords([FromQuery] string newPassword = "demo123")
+    {
+        using var connection = _context.CreateConnection();
+        var hash = ComputeHash(newPassword);
+        var salt = Guid.NewGuid().ToString("N");
+
+        var sql = @"
+            UPDATE users
+            SET password_hash = @Hash,
+                password_salt = @Salt,
+                password_changed_at = GETDATE()";
+
+        var rows = await connection.ExecuteAsync(sql, new { Hash = hash, Salt = salt });
+
+        // Tarihçeye tek kayıt eklemek isterseniz burada ekleyebilirsiniz; basit tutuyoruz.
+        return Ok(new { Updated = rows, Message = $"Tüm şifreler '{newPassword}' olarak sıfırlandı (hashlenmiş)." });
+    }
+
     private static string ComputeHash(string input)
     {
         using var sha = SHA256.Create();

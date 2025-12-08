@@ -37,6 +37,9 @@ const LoginPage = () => {
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     setError(null);
+    // Eski oturumu temizle ki yanlış girişte eski token kalmasın
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
 
     try {
       const response = await userService.login(data.email, data.password);
@@ -48,6 +51,8 @@ const LoginPage = () => {
       // Dashboard'a yönlendir
       navigate('/dashboard');
     } catch (err) {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
       setError('E-posta veya şifre hatalı. Lütfen tekrar deneyin.');
     } finally {
       setIsLoading(false);

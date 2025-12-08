@@ -1,6 +1,6 @@
 import apiClient from '../client';
 import { API_ENDPOINTS } from '../endpoints';
-import { User, CreateUserRequest } from '../../types';
+import { User, CreateUserRequest, LoginResponse } from '../../types';
 
 export const userService = {
   /**
@@ -43,23 +43,11 @@ export const userService = {
   },
 
   /**
-   * Kullanıcı girişi yapar
-   * NOT: Backend'de auth endpoint yoksa mock olarak kullanılır
+   * Kullanıcı girişi yapar (backend doğrulamalı)
    */
-  login: async (email: string, _password: string): Promise<{ user: User; token: string }> => {
-    // Geçici olarak kullanıcıları çekip email ile eşleştiriyoruz
-    // Gerçek projede /auth/login endpoint'i kullanılmalı
-    const users = await userService.getAllUsers();
-    const user = users.find(u => u.email === email);
-    
-    if (!user) {
-      throw new Error('Kullanıcı bulunamadı');
-    }
-
-    // Mock token oluştur
-    const token = btoa(JSON.stringify({ userId: user.userId, email: user.email, exp: Date.now() + 3600000 }));
-    
-    return { user, token };
+  login: async (email: string, password: string): Promise<LoginResponse> => {
+    const response = await apiClient.post<LoginResponse>(API_ENDPOINTS.AUTH.LOGIN, { email, password });
+    return response.data;
   },
 
   /**
