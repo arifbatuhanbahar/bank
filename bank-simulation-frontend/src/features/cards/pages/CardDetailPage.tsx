@@ -5,11 +5,11 @@ import {
   Box,
   Chip,
   Divider,
-  Grid,
   Paper,
   Skeleton,
   Typography,
 } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import { cardService } from '../../../api';
 import { CreditCard } from '../../../types';

@@ -6,7 +6,6 @@ import {
   Chip,
   Divider,
   FormControl,
-  Grid,
   InputLabel,
   MenuItem,
   Paper,
@@ -14,6 +13,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import SecurityIcon from '@mui/icons-material/Security';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { auditService } from '../../../api';

@@ -10,7 +10,6 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  Grid,
   Paper,
   Stack,
   TextField,
@@ -20,6 +19,7 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import PeopleIcon from '@mui/icons-material/People';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import { userService } from '../../../api';

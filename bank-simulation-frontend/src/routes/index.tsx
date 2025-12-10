@@ -22,6 +22,7 @@ import AdminAuditPage from '../features/admin/pages/AdminAuditPage';
 import AdminSystemPage from '../features/admin/pages/AdminSystemPage';
 import AccountDetailPage from '../features/accounts/pages/AccountDetailPage';
 import RegisterPage from '../features/auth/pages/RegisterPage';
+import ForgotPasswordPage from '../features/auth/pages/ForgotPasswordPage';
 import AdminUsersPage from '../features/admin/pages/AdminUsersPage';
 import ChangePasswordPage from '../features/auth/pages/ChangePasswordPage';
 
@@ -33,17 +34,15 @@ const ComingSoon = ({ title }: { title: string }) => (
   </div>
 );
 
-// Get user from localStorage
-const getUser = () => {
-  const userJson = localStorage.getItem('user');
-  return userJson ? JSON.parse(userJson) : null;
-};
-
 const router = createBrowserRouter([
   // Public Routes
   {
     path: '/login',
     element: <LoginPage />,
+  },
+  {
+    path: '/forgot-password',
+    element: <ForgotPasswordPage />,
   },
   {
     path: '/register',
@@ -55,7 +54,7 @@ const router = createBrowserRouter([
     path: '/',
     element: (
       <PrivateRoute>
-        <MainLayout user={getUser()} />
+        <MainLayout />
       </PrivateRoute>
     ),
     children: [

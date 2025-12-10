@@ -5,11 +5,11 @@ import {
   Box,
   Chip,
   Divider,
-  Grid,
   Paper,
   Skeleton,
   Typography,
 } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import HistoryIcon from '@mui/icons-material/History';
 import { accountService, transactionService } from '../../../api';

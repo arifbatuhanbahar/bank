@@ -5,18 +5,11 @@ import Header from './Header';
 import Sidebar from './Sidebar';
 import { isAdminUser } from '../../utils/auth';
 
-interface MainLayoutProps {
-  user?: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    [key: string]: any;
-  } | null;
-}
-
-const MainLayout = ({ user }: MainLayoutProps) => {
+const MainLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
+  const userJson = localStorage.getItem('user');
+  const user = userJson ? JSON.parse(userJson) : null;
 
   const handleMenuClick = () => {
     setSidebarOpen(!sidebarOpen);

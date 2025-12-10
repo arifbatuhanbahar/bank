@@ -37,23 +37,31 @@ const LoginPage = () => {
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     setError(null);
-    // Eski oturumu temizle ki yanlış girişte eski token kalmasın
+    // Eski oturumu temizle ki hatali giriste eski token kalmasin
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
 
     try {
       const response = await userService.login(data.email, data.password);
-      
-      // Token ve kullanıcı bilgisini kaydet
+
+      const normalizedUser = {
+        ...response.user,
+        email: (response.user as any).email ?? (response.user as any).Email,
+        userId: response.user.userId ?? (response.user as any).UserId,
+        firstName: (response.user as any).firstName ?? (response.user as any).FirstName,
+        lastName: (response.user as any).lastName ?? (response.user as any).LastName,
+      };
+
+      // Token ve kullanici bilgisini kaydet
       localStorage.setItem('authToken', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      
-      // Dashboard'a yönlendir
+      localStorage.setItem('user', JSON.stringify(normalizedUser));
+
+      // Dashboard'a yonlendir
       navigate('/dashboard');
     } catch (err) {
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
-      setError('E-posta veya şifre hatalı. Lütfen tekrar deneyin.');
+      setError('E-posta veya sifre hatali. Lutfen tekrar deneyin.');
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +88,7 @@ const LoginPage = () => {
           boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.08)',
         }}
       >
-        {/* Logo ve Başlık */}
+        {/* Logo ve Baslik */}
         <Box sx={{ textAlign: 'center', mb: 4 }}>
           <Box
             sx={{
@@ -100,11 +108,11 @@ const LoginPage = () => {
             Bank Simulation
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Hesabınıza giriş yapın
+            Hesabiniza giris yapin
           </Typography>
         </Box>
 
-        {/* Hata Mesajı */}
+        {/* Hata Mesaji */}
         {error && (
           <Alert severity="error" sx={{ mb: 3 }}>
             {error}
@@ -127,7 +135,7 @@ const LoginPage = () => {
 
           <TextField
             {...register('password')}
-            label="Şifre"
+            label="Sifre"
             type={showPassword ? 'text' : 'password'}
             fullWidth
             margin="normal"
@@ -155,7 +163,7 @@ const LoginPage = () => {
               variant="body2"
               underline="hover"
             >
-              Şifremi Unuttum
+              Sifremi Unuttum
             </Link>
           </Box>
 
@@ -170,33 +178,25 @@ const LoginPage = () => {
             {isLoading ? (
               <CircularProgress size={24} color="inherit" />
             ) : (
-              'Giriş Yap'
+              'Giris Yap'
             )}
           </Button>
         </Box>
 
-        {/* Kayıt Linki */}
+        {/* Kayit Linki */}
         <Box sx={{ textAlign: 'center', mt: 3 }}>
           <Typography variant="body2" color="text.secondary">
-            Hesabınız yok mu?{' '}
+            Hesabiniz yok mu?{' '}
             <Link
               component={RouterLink}
               to="/register"
               underline="hover"
               fontWeight={600}
             >
-              Kayıt Olun
+              Kayit Olun
             </Link>
           </Typography>
         </Box>
-
-        {/* Demo Bilgisi */}
-        <Alert severity="info" sx={{ mt: 3 }}>
-          <Typography variant="caption">
-            <strong>Demo Giriş:</strong> Veritabanındaki herhangi bir kullanıcının
-            e-posta adresi ile giriş yapabilirsiniz. (Şifre kontrol edilmiyor)
-          </Typography>
-        </Alert>
       </Paper>
     </Box>
   );

@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   FormControl,
-  Grid,
   InputLabel,
   MenuItem,
   Paper,
@@ -12,6 +11,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import WarningIcon from '@mui/icons-material/Warning';
 import RuleIcon from '@mui/icons-material/Rule';
 import { fraudService } from '../../../api';

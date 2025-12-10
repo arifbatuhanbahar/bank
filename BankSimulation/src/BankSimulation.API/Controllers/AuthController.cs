@@ -31,8 +31,18 @@ public class AuthController : ControllerBase
             return Unauthorized("Kullanıcı bulunamadı.");
 
         // Hem düz metin (eski kayıtlar) hem SHA256 hash kontrolü
-        var incomingHash = ComputeHash(request.Password);
-        var match = user.PasswordHash == request.Password || user.PasswordHash == incomingHash;
+        var hashWithoutSalt = ComputeHash(request.Password);
+        var hashWithSalt = string.IsNullOrWhiteSpace(user.PasswordSalt)
+            ? null
+            : ComputeHash(request.Password, user.PasswordSalt);
+
+        // Demo/gelistirme icin ortak parola (istek: demo123)
+        var demoPassword = "demo123";
+
+        var match = user.PasswordHash == request.Password ||
+                    user.PasswordHash == hashWithoutSalt ||
+                    user.PasswordHash == hashWithSalt ||
+                    request.Password == demoPassword;
 
         if (!match)
             return Unauthorized("Şifre hatalı.");
@@ -50,10 +60,11 @@ public class AuthController : ControllerBase
         });
     }
 
-    private static string ComputeHash(string input)
+    private static string ComputeHash(string input, string? salt = null)
     {
         using var sha = SHA256.Create();
-        var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(input));
+        var payload = salt is null ? input : input + salt;
+        var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(payload));
         return Convert.ToBase64String(bytes);
     }
 }

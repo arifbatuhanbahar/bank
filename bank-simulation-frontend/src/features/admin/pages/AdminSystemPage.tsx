@@ -3,11 +3,11 @@ import {
   Alert,
   Box,
   Button,
-  Grid,
   Paper,
   TextField,
   Typography,
 } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import SettingsIcon from '@mui/icons-material/Settings';
 import TuneIcon from '@mui/icons-material/Tune';
 import { systemService } from '../../../api';
